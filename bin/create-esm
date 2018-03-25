@@ -2,5 +2,4 @@
 
 const fs = require("fs-extra")
 
-console.log(process.cwd())
-fs.outputFileSync("./package.json", '{"dependencies":{"@std/esm":"^0.19.0"}}')
+fs.outputFileSync("./package.json", '{"dependencies":{"esm":"^3.0.0"}}')

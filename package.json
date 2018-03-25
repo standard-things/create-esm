@@ -8,14 +8,22 @@
   "author": "John-David Dalton <john.david.dalton@gmail.com>",
   "bin": "./bin/create-esm",
   "main": "index.js",
+  "private": true,
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "scripts": {
+    "lint": "eslint '**/*.{js}' --fix --quiet",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "fs-extra": "^5.0.0"
+    "esm": "^3.0.0",
+    "execa": "^0.9.0",
+    "fs-extra": "^5.0.0",
+    "golden-fleece": "^1.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1"
   },
   "files": [
     "index.js",
