@@ -1,12 +1,9 @@
 import execa from "execa"
-import fleece from "golden-fleece"
-import fs from "fs"
+import fs from "fs-extra"
 import path from "path"
 
 const { env } = process
 const isWin = process.platform === "win32"
-
-const backSlashRegExp = /\\/g
 
 const npmBinRegExp = isWin
   ? /[\\/]npm(\.cmd)?$/
@@ -26,8 +23,12 @@ const npxBinRegExp = isWin
 
 let bin = "yarn"
 
-function normalize(filename) {
-  return filename.replace(backSlashRegExp, "/")
+function tryResolve(request) {
+  try {
+    return require.resolve(request, { paths: ["."] })
+  } catch (e) {}
+
+  return path.resolve(request)
 }
 
 Promise
@@ -65,7 +66,7 @@ Promise
   .then(() => {
     const pkgPath = path.resolve("package.json")
 
-    if (! fs.existsSync(pkgPath)) {
+    if (! fs.pathExistsSync(pkgPath)) {
       return
     }
 
@@ -73,36 +74,30 @@ Promise
     const pkgJSON = JSON.parse(pkgString)
 
     const main = pkgJSON.main || "index.js"
-    const mainPath = require.resolve(main, { paths: ["."] })
+    const mainPath = tryResolve(main)
     const mainName = path.basename(mainPath)
 
-    const newMainName = mainName === "main.js"
+    const esmMainName = mainName === "main.js"
       ? "_" + mainName
-      : mainName
+      : "main.js"
 
-    const newMainPath = path.resolve(path.dirname(mainPath), newMainName)
+    const esmMainPath = path.resolve(path.dirname(mainPath), esmMainName)
 
-    if (fs.existsSync(newMainPath)) {
+    if (fs.pathExistsSync(mainPath) ||
+        fs.pathExistsSync(esmMainPath)) {
       return
     }
 
-    let relPath = path.relative(process.cwd(), mainPath)
-
-    if (relPath.charCodeAt(0) !== 46 /* . */) {
-      relPath = "./" + relPath
-    }
-
-    const newMain = path.resolve(path.dirname(relPath), newMainName)
-
-    fs.writeFileSync(pkgPath, fleece.patch(pkgString, Object.assign({
-      main: normalize(newMain)
-    }, pkgJSON)))
-
-    fs.writeFileSync(newMainPath, [
+    fs.outputFileSync(mainPath, [
       '"use strict"',
       "",
       'require = require("esm")(module)',
-      'module.export = require("' + normalize(relPath) + '")',
+      'module.export = require("./' + esmMainName + '")',
+      ""
+    ].join("\n"))
+
+    fs.outputFileSync(esmMainPath, [
+      "export {}",
       ""
     ].join("\n"))
   })
