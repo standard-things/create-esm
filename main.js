@@ -46,11 +46,16 @@ Promise
     })
   })
   .then((result) => {
+    const args = [
+      "init",
+      ...process.argv.slice(2)
+    ]
+
     if (result.failed) {
       bin = bin === "npm" ? "yarn" : "npm"
     }
 
-    return execa(bin, ["init"], {
+    return execa(bin, args, {
       stdio: "inherit"
     })
   })
