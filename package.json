@@ -8,7 +8,6 @@
   "author": "John-David Dalton <john.david.dalton@gmail.com>",
   "bin": "bin/create-esm",
   "main": "index.js",
-  "private": true,
   "engines": {
     "node": ">=6"
   },
