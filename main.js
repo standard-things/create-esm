@@ -21,7 +21,53 @@ const npxBinRegExp = isWin
   ? /[\\/]npx(\.cmd)?$/
   : /\/npx$/
 
-let bin = "yarn"
+function addESM(bin) {
+  return execBin(bin,
+    bin === "npm"
+      ? ["i", "--save", "esm"]
+      : ["add", "esm"]
+  )
+}
+
+function checkBin(bin) {
+  return ! execa.sync(bin, ["-v"], {
+    reject: false
+  }).failed
+}
+
+function execBin(bin, args) {
+  return execa(bin, args, {
+    stdio: "inherit"
+  })
+}
+
+function findBin() {
+  let bin = "yarn"
+
+  if (npmJsRegExp.test(env.NPM_CLI_JS) ||
+      npxJsRegExp.test(env.NPX_CLI_JS) ||
+      npmBinRegExp.test(env._) ||
+      npxBinRegExp.test(env._)) {
+    bin = "npm"
+  }
+
+  if (! checkBin(bin)) {
+    bin = bin === "npm" ? "yarn" : "npm"
+
+    if (! checkBin(bin)) {
+      throw new Error("No package manager found.")
+    }
+  }
+
+  return bin
+}
+
+function initPackage(bin) {
+  return execBin(bin, [
+    "init",
+    ...process.argv.slice(2)
+  ])
+}
 
 function tryResolve(request) {
   try {
@@ -31,78 +77,50 @@ function tryResolve(request) {
   return path.resolve(request)
 }
 
+function writeFiles() {
+  const pkgPath = path.resolve("package.json")
+
+  if (! fs.pathExistsSync(pkgPath)) {
+    return
+  }
+
+  const pkgString = fs.readFileSync(pkgPath, "utf8")
+  const pkgJSON = JSON.parse(pkgString)
+
+  const main = pkgJSON.main || "index.js"
+  const mainPath = tryResolve(main)
+  const mainName = path.basename(mainPath)
+
+  const esmMainName = mainName === "main.js"
+    ? "_" + mainName
+    : "main.js"
+
+  const esmMainPath = path.resolve(path.dirname(mainPath), esmMainName)
+
+  if (fs.pathExistsSync(mainPath) ||
+      fs.pathExistsSync(esmMainPath)) {
+    return
+  }
+
+  fs.outputFileSync(mainPath, [
+    '"use strict"',
+    "",
+    'require = require("esm")(module)',
+    'module.export = require("./' + esmMainName + '")',
+    ""
+  ].join("\n"))
+
+  fs.outputFileSync(esmMainPath, [
+    "export {}",
+    ""
+  ].join("\n"))
+}
+
+const bin = findBin()
+
 Promise
   .resolve()
-  .then(() => {
-    if (npmJsRegExp.test(env.NPM_CLI_JS) ||
-        npxJsRegExp.test(env.NPX_CLI_JS) ||
-        npmBinRegExp.test(env._) ||
-        npxBinRegExp.test(env._)) {
-      bin = "npm"
-    }
-
-    return execa(bin, ["-v"], {
-      reject: false
-    })
-  })
-  .then((result) => {
-    const args = [
-      "init",
-      ...process.argv.slice(2)
-    ]
-
-    if (result.failed) {
-      bin = bin === "npm" ? "yarn" : "npm"
-    }
-
-    return execa(bin, args, {
-      stdio: "inherit"
-    })
-  })
-  .then(() => {
-    const args = bin === "npm"
-      ? ["i", "--save", "esm"]
-      : ["add", "esm"]
-
-    return execa(bin, args, {
-      stdio: "inherit"
-    })
-  })
-  .then(() => {
-    const pkgPath = path.resolve("package.json")
-
-    if (! fs.pathExistsSync(pkgPath)) {
-      return
-    }
-
-    const pkgString = fs.readFileSync(pkgPath, "utf8")
-    const pkgJSON = JSON.parse(pkgString)
-
-    const main = pkgJSON.main || "index.js"
-    const mainPath = tryResolve(main)
-    const mainName = path.basename(mainPath)
-
-    const esmMainName = mainName === "main.js"
-      ? "_" + mainName
-      : "main.js"
-
-    const esmMainPath = path.resolve(path.dirname(mainPath), esmMainName)
-
-    if (fs.pathExistsSync(mainPath) ||
-        fs.pathExistsSync(esmMainPath)) {
-      return
-    }
-
-    fs.outputFileSync(mainPath, [
-      '"use strict"',
-      "",
-      'require = require("esm")(module)',
-      'module.export = require("./' + esmMainName + '")',
-      ""
-    ].join("\n"))
-
-    fs.outputFileSync(esmMainPath, [
-      "export {}",
-      ""
-    ].join("\n"))
-  })
+  .then(() => initPackage(bin))
+  .then(() => addESM(bin))
+  .then(() => writeFiles())
+  .catch((e) => console.error(e))
