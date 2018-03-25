@@ -19,7 +19,6 @@
   "dependencies": {
     "esm": "^3.0.0",
     "execa": "^0.9.0",
-    "fs-extra": "^5.0.0",
     "golden-fleece": "^1.0.3"
   },
   "devDependencies": {

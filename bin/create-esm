@@ -1,5 +1,5 @@
 #!/usr/bin/env node
+"use strict"
 
-const fs = require("fs-extra")
-
-fs.outputFileSync("./package.json", '{"dependencies":{"esm":"^3.0.0"}}')
+require = require("esm")(module)
+require("../main.js")
