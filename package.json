@@ -13,7 +13,7 @@
     "node": ">=6"
   },
   "scripts": {
-    "lint": "eslint '**/*.{js}' --fix --quiet",
+    "lint": "eslint '**/*.js' --fix --quiet",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -22,7 +22,10 @@
     "fs-extra": "^5.0.0"
   },
   "devDependencies": {
-    "eslint": "^4.19.1"
+    "babel-eslint": "^8.2.2",
+    "eslint": "^4.19.1",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1"
   },
   "files": [
     "index.js",

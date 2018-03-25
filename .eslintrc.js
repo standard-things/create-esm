@@ -1,7 +1,5 @@
 "use strict"
 
-const isTest = /test/.test(process.env.NODE_ENV)
-
 module.exports = {
   env: {
     es6: true,
@@ -9,16 +7,9 @@ module.exports = {
     node: true
   },
   extends: ["eslint:recommended", "plugin:import/errors"],
-  globals: {
-    __external__: false,
-    __non_webpack_module__: false,
-    __non_webpack_require__: false,
-    __shared__: false,
-    WebAssembly: false
-  },
   parser: "eslint-plugin-import/memo-parser",
   parserOptions: {
-    ecmaVersion: 8,
+    ecmaVersion: 9,
     parser: "babel-eslint",
     sourceType: "module"
   },
@@ -45,7 +36,6 @@ module.exports = {
     "no-unused-vars": "error",
     "no-useless-rename": "error",
     "no-var": "error",
-    "node/no-unsupported-features": ["error", { version: 6 }],
     "one-var": ["error", "never"],
     "quote-props": ["error", "as-needed"],
     quotes: ["error", "double", { allowTemplateLiterals: true, avoidEscape: true }],
