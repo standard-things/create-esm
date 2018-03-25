@@ -23,9 +23,9 @@ const npxBinRegExp = isWin
 
 function addESM(bin) {
   return execBin(bin,
-    bin === "npm"
-      ? ["i", "--save", "esm"]
-      : ["add", "esm"]
+    bin === "yarn"
+      ? ["add", "esm"]
+      : ["i", "--save", "esm"]
   )
 }
 
@@ -52,7 +52,7 @@ function findBin() {
   }
 
   if (! checkBin(bin)) {
-    bin = bin === "npm" ? "yarn" : "npm"
+    bin = bin === "yarn" ? "npm" : "yarn"
 
     if (! checkBin(bin)) {
       throw new Error("No package manager found.")
