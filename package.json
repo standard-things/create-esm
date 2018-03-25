@@ -29,6 +29,7 @@
   },
   "files": [
     "index.js",
+    "main.js",
     "bin/create-esm"
   ]
 }
