@@ -36,7 +36,7 @@ function execBin(bin, args) {
 }
 
 function findBin() {
-  return psList()
+  return getProcesses()
     .then((processes) => {
       const { env } = process
 
@@ -59,6 +59,12 @@ function findBin() {
 
       return bin
     })
+}
+
+function getProcesses() {
+  return isWin
+    ? Promise.resolve([])
+    : psList()
 }
 
 function initPackage(bin) {
