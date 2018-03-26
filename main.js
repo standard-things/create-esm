@@ -110,7 +110,8 @@ function writeFiles() {
   fs.outputFileSync(mainPath, [
     '"use strict"',
     "",
-    'require = require("esm")(module)',
+    "// Set options as a parameter, environment variable, or rc file.",
+    'require = require("esm")(module/*, options*/)',
     'module.export = require("./' + esmMainName + '")',
     ""
   ].join("\n"))
