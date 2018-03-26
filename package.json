@@ -18,7 +18,8 @@
   "dependencies": {
     "esm": "^3.0.0",
     "execa": "^0.10.0",
-    "fs-extra": "^5.0.0"
+    "fs-extra": "^5.0.0",
+    "ps-list": "^4.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",

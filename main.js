@@ -1,25 +1,19 @@
 import execa from "execa"
 import fs from "fs-extra"
 import path from "path"
+import psList from "ps-list"
 
-const { env } = process
 const isWin = process.platform === "win32"
 
 const npmBinRegExp = isWin
-  ? /[\\/]npm(\.cmd)?$/
-  : /\/npm$/
+  ? /[\\/]np[mx](\.cmd)?$/
+  : /\/np[mx]$/
 
 const npmJsRegExp = isWin
-  ? /[\\/]node_modules[\\/]npm[\\/]bin[\\/]npm-cli\.js$/
-  : /\/node_modules\/npm\/bin\/npm-cli\.js$/
+  ? /[\\/]node_modules[\\/]npm[\\/]bin[\\/]np[mx]-cli\.js$/
+  : /\/node_modules\/npm\/bin\/np[mx]-cli\.js$/
 
-const npxJsRegExp = isWin
-  ? /[\\/]node_modules[\\/]npm[\\/]bin[\\/]npm-cli\.js$/
-  : /\/node_modules\/npm\/bin\/npm-cli\.js$/
-
-const npxBinRegExp = isWin
-  ? /[\\/]npx(\.cmd)?$/
-  : /\/npx$/
+const npmNameRegExp = /^np[mx]$/
 
 function addESM(bin) {
   return execBin(bin,
@@ -42,24 +36,29 @@ function execBin(bin, args) {
 }
 
 function findBin() {
-  let bin = "yarn"
+  return psList()
+    .then((processes) => {
+      const { env } = process
 
-  if (npmJsRegExp.test(env.NPM_CLI_JS) ||
-      npxJsRegExp.test(env.NPX_CLI_JS) ||
-      npmBinRegExp.test(env._) ||
-      npxBinRegExp.test(env._)) {
-    bin = "npm"
-  }
+      let bin = "yarn"
 
-  if (! checkBin(bin)) {
-    bin = bin === "yarn" ? "npm" : "yarn"
+      if (npmJsRegExp.test(env.NPM_CLI_JS) ||
+          npmJsRegExp.test(env.NPX_CLI_JS) ||
+          npmBinRegExp.test(env._) ||
+          processes.some(({ name }) => npmNameRegExp.test(name))) {
+        bin = "npm"
+      }
 
-    if (! checkBin(bin)) {
-      throw new Error("No package manager found.")
-    }
-  }
+      if (! checkBin(bin)) {
+        bin = bin === "yarn" ? "npm" : "yarn"
 
-  return bin
+        if (! checkBin(bin)) {
+          throw new Error("No package manager found.")
+        }
+      }
+
+      return bin
+    })
 }
 
 function initPackage(bin) {
@@ -116,11 +115,10 @@ function writeFiles() {
   ].join("\n"))
 }
 
-const bin = findBin()
-
-Promise
-  .resolve()
-  .then(() => initPackage(bin))
-  .then(() => addESM(bin))
-  .then(() => writeFiles())
+findBin()
+  .then((bin) =>
+    initPackage(bin)
+      .then(() => addESM(bin))
+      .then(() => writeFiles())
+  )
   .catch((e) => console.error(e))
