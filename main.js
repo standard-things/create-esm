@@ -126,6 +126,9 @@ function writeFiles() {
 
 const bin = await findBin()
 
+// Add newline between create-esm installation and package initialization.
+console.log("")
+
 await initPackage(bin)
 await addESM(bin)
 await writeFiles()
