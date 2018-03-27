@@ -124,10 +124,8 @@ function writeFiles() {
   ].join("\n"))
 }
 
-findBin()
-  .then((bin) =>
-    initPackage(bin)
-      .then(() => addESM(bin))
-      .then(writeFiles)
-  )
-  .catch(console.error)
+const bin = await findBin()
+
+await initPackage(bin)
+await addESM(bin)
+await writeFiles()

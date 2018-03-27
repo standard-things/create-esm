@@ -32,6 +32,7 @@
     "golden-fleece": "^1.0.4"
   },
   "files": [
+    ".esmrc",
     "index.js",
     "main.js",
     "bin/create-esm"
