@@ -8,12 +8,13 @@
   "author": "John-David Dalton <john.david.dalton@gmail.com>",
   "bin": "bin/create-esm",
   "main": "index.js",
+  "private": true,
   "engines": {
     "node": ">=6"
   },
   "scripts": {
     "lint": "eslint '**/*.js' --fix --quiet",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pub": "node script/publish.js"
   },
   "dependencies": {
     "esm": "^3.0.0",
@@ -25,7 +26,8 @@
     "babel-eslint": "^8.2.2",
     "eslint": "^4.19.1",
     "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-node": "^6.0.1"
+    "eslint-plugin-node": "^6.0.1",
+    "golden-fleece": "^1.0.4"
   },
   "files": [
     "index.js",
