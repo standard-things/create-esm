@@ -124,11 +124,16 @@ function writeFiles() {
   ].join("\n"))
 }
 
-const bin = await findBin()
-
-// Add newline between create-esm installation and package initialization.
-console.log("")
-
-await initPackage(bin)
-await addESM(bin)
-await writeFiles()
+findBin()
+  .then((bin) =>
+    Promise
+      .resolve()
+      // Add a newline to stdout between the create-esm installation and
+      // the package initialization.
+      /* eslint-disable no-console */
+      .then(() => console.log(""))
+      .then(() => initPackage(bin))
+      .then(() => addESM(bin))
+  )
+  .then(writeFiles)
+  .catch(console.error)

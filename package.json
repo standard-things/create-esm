@@ -11,10 +11,8 @@
   "engines": {
     "node": ">=6"
   },
-  "esm": {
-    "await": true
-  },
   "scripts": {
+    "precommit": "npm run lint",
     "lint": "eslint '**/*.js' --fix --quiet",
     "pub": "node script/publish.js",
     "test": "echo \"Error: no test specified\" && exit 1"
