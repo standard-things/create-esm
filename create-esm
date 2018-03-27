@@ -2,4 +2,4 @@
 "use strict"
 
 require = require("esm")(module)
-require("../main.js")
+require("./main.js")

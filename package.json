@@ -6,11 +6,13 @@
   "repository": "standard-things/create-esm",
   "license": "MIT",
   "author": "John-David Dalton <john.david.dalton@gmail.com>",
-  "bin": "bin/create-esm",
-  "main": "index.js",
+  "bin": "create-esm",
   "private": true,
   "engines": {
     "node": ">=6"
+  },
+  "esm": {
+    "await": true
   },
   "scripts": {
     "lint": "eslint '**/*.js' --fix --quiet",
@@ -31,9 +33,7 @@
     "golden-fleece": "^1.0.4"
   },
   "files": [
-    ".esmrc",
-    "index.js",
-    "main.js",
-    "bin/create-esm"
+    "create-esm",
+    "main.js"
   ]
 }
