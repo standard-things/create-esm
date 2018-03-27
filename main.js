@@ -126,6 +126,6 @@ findBin()
   .then((bin) =>
     initPackage(bin)
       .then(() => addESM(bin))
-      .then(() => writeFiles())
+      .then(writeFiles)
   )
-  .catch((e) => console.error(e))
+  .catch(console.error)
