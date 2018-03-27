@@ -76,7 +76,9 @@ function initPackage(bin) {
 
 function tryResolve(request) {
   try {
-    return require.resolve(request, { paths: ["."] })
+    return require.resolve(request, {
+      paths: ["."]
+    })
   } catch (e) {}
 
   return path.resolve(request)
