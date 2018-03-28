@@ -2,7 +2,7 @@
 
 const execa = require("execa")
 const fleece = require("golden-fleece")
-const fs = require("fs-extra")
+const fs = require("fs")
 const path = require("path")
 
 const rootPath = path.resolve(__dirname, "..")
@@ -18,16 +18,13 @@ const fieldsToRemove = [
 ]
 
 function cleanPackageJSON() {
-  return fs
-    .readFile(pkgPath, "utf8")
-    .then((content) => {
-      process.once("exit", () => fs.outputFileSync(pkgPath, content))
+  const content = fs.readFileSync(pkgPath, "utf8")
+  process.once("exit", () => fs.writeFileSync(pkgPath, content))
 
-      const pkgJSON = JSON.parse(content)
-      pkgJSON.scripts = defaultScripts
-      fieldsToRemove.forEach((field) => Reflect.deleteProperty(pkgJSON, field))
-      return fs.outputFile(pkgPath, fleece.patch(content, pkgJSON))
-    })
+  const pkgJSON = JSON.parse(content)
+  pkgJSON.scripts = defaultScripts
+  fieldsToRemove.forEach((field) => Reflect.deleteProperty(pkgJSON, field))
+  fs.writeFileSync(pkgPath, fleece.patch(content, pkgJSON))
 }
 
 function publishPackage() {
