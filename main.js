@@ -81,7 +81,7 @@ function initFiles() {
     "",
     "// Set options as a parameter, environment variable, or rc file.",
     'require = require("esm")(module/*, options*/)',
-    'module.export = require("./' + esmMainName + '")',
+    'module.exports = require("./' + esmMainName + '")',
     ""
   ].join("\n"))
 
