@@ -14,8 +14,7 @@
   "scripts": {
     "precommit": "npm run lint",
     "lint": "eslint '**/*.js' --fix --quiet",
-    "pub": "node script/publish.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pub": "node script/publish.js"
   },
   "dependencies": {
     "esm": "^3.0.0",
@@ -26,7 +25,7 @@
     "eslint": "^4.19.1",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-node": "^6.0.1",
-    "golden-fleece": "^1.0.4"
+    "golden-fleece": "^1.0.6"
   },
   "files": [
     "create-esm",
