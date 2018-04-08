@@ -86,6 +86,7 @@ function initFiles() {
   ].join("\n"))
 
   fs.writeFileSync(esmMainPath, [
+    "// ESM syntax is supported.",
     "export {}",
     ""
   ].join("\n"))
