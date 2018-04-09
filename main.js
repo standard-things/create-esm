@@ -4,6 +4,8 @@ import path from "path"
 
 const isWin = process.platform === "win32"
 
+const mainFieldRegExp = /^(\s*)("main":.*?)(,)?(\r?\n)/m
+
 const npmBinRegExp = isWin
   ? /[\\/]np[mx](\.cmd)?$/
   : /\/np[mx]$/
@@ -18,6 +20,16 @@ function addESM(bin) {
     : ["i", "--save", "esm"]
 
   return execa(bin, args)
+}
+
+function addField(string, name, value) {
+  return string.replace(mainFieldRegExp, (match, prelude, main, comma, newline) => {
+    return prelude + main + "," + newline +
+      prelude +
+      JSON.stringify(name) + ": " + JSON.stringify(value) +
+      (comma || "") +
+      newline
+  })
 }
 
 function checkBin(bin) {
@@ -58,8 +70,8 @@ function initFiles() {
   const pkgString = fs.readFileSync(pkgPath, "utf8")
   const pkgJSON = JSON.parse(pkgString)
 
-  const main = pkgJSON.main || "index.js"
-  const mainPath = resolve(main)
+  const mainField = pkgJSON.main || "index.js"
+  const mainPath = resolve(mainField)
   const mainName = path.basename(mainPath)
   const mainDirname = path.dirname(mainPath)
 
@@ -68,6 +80,11 @@ function initFiles() {
     : "main.js"
 
   const esmMainPath = path.resolve(mainDirname, esmMainName)
+  const moduleField = mainField.slice(0, -mainName.length) + esmMainName
+
+  if (! Reflect.has(pkgJSON, "module")) {
+    fs.writeFileSync(pkgPath, addField(pkgString, "module", moduleField))
+  }
 
   if (fs.existsSync(mainPath) ||
       fs.existsSync(esmMainPath)) {
@@ -81,7 +98,7 @@ function initFiles() {
     "",
     "// Set options as a parameter, environment variable, or rc file.",
     'require = require("esm")(module/*, options*/)',
-    'module.exports = require("./' + esmMainName + '")',
+    "module.exports = require(" + JSON.stringify("./" + esmMainName) + ")",
     ""
   ].join("\n"))
 
