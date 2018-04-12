@@ -110,12 +110,16 @@ function initFiles() {
 }
 
 function initPackage(bin) {
-  const args = [
+  const initArgs = process.argv
+    .slice(2)
+    .filter((arg) => arg.startsWith("-"))
+
+  const binArgs = [
     "init",
-    ...process.argv.slice(2)
+    ...initArgs
   ]
 
-  return execa(bin, args, {
+  return execa(bin, binArgs, {
     stdio: "inherit"
   })
 }
