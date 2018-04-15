@@ -16,6 +16,7 @@
     "prepub": "npm run build:prod",
     "build": "node script/build.js",
     "build:prod": "npm run build -- --prod",
+    "clean": "node script/clean.js",
     "lint": "eslint '**/*.js' --fix --quiet",
     "pub": "node script/publish.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -30,6 +31,7 @@
     "eslint-plugin-node": "^6.0.1",
     "execa": "^0.10.0",
     "fs-extra": "^5.0.0",
+    "globby": "^8.0.1",
     "golden-fleece": "^1.0.8",
     "json-6": "^0.1.128",
     "optimize-js-plugin": "0.0.4",
