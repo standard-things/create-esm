@@ -2,7 +2,7 @@
 
 const execa = require("execa")
 const fleece = require("golden-fleece")
-const fs = require("fs")
+const fs = require("fs-extra")
 const path = require("path")
 
 const rootPath = path.resolve(__dirname, "..")

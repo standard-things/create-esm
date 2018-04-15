@@ -13,23 +13,35 @@
   },
   "scripts": {
     "precommit": "npm run lint",
+    "prepub": "npm run build:prod",
+    "build": "node script/build.js",
+    "build:prod": "npm run build -- --prod",
     "lint": "eslint '**/*.js' --fix --quiet",
     "pub": "node script/publish.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "esm": "^3.0.17",
-    "execa": "^0.10.0"
-  },
   "devDependencies": {
-    "babel-eslint": "^8.2.2",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-for-of-as-array": "^1.1.1",
+    "babel-plugin-transform-remove-console": "^6.9.1",
     "eslint": "^4.19.1",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-node": "^6.0.1",
-    "golden-fleece": "^1.0.8"
+    "execa": "^0.10.0",
+    "fs-extra": "^5.0.0",
+    "golden-fleece": "^1.0.8",
+    "json-6": "^0.1.128",
+    "optimize-js-plugin": "0.0.4",
+    "trash": "^4.3.0",
+    "uglify-es": "^3.3.10",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "webpack": "^4.3.0",
+    "webpack-bundle-analyzer": "^2.11.1",
+    "webpack-cli": "^2.0.13",
+    "yargs": "^11.1.0"
   },
   "files": [
-    "create-esm",
-    "main.js"
+    "create-esm"
   ]
 }
