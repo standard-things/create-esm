@@ -155,7 +155,7 @@ function mkdirp(dirPath) {
 
 function resolve(request) {
   try {
-    return require.resolve(request, {
+    return __non_webpack_require__.resolve(request, {
       paths: ["."]
     })
   } catch (e) {}

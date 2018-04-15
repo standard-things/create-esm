@@ -7,6 +7,9 @@ module.exports = {
     node: true
   },
   extends: ["eslint:recommended", "plugin:import/errors"],
+  globals: {
+    __non_webpack_require__: false
+  },
   parser: "eslint-plugin-import/memo-parser",
   parserOptions: {
     ecmaVersion: 9,
