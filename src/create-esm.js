@@ -1,3 +1,5 @@
+import Module from "module"
+
 import execa from "execa"
 import fs from "fs"
 import path from "path"
@@ -154,6 +156,10 @@ function mkdirp(dirPath) {
 }
 
 function resolve(request) {
+  if (__non_webpack_require__.resolve.length === 1) {
+    return resolveFallback(request)
+  }
+
   try {
     return __non_webpack_require__.resolve(request, {
       paths: ["."]
@@ -161,6 +167,28 @@ function resolve(request) {
   } catch (e) {}
 
   return path.resolve(request)
+}
+
+function resolveFallback(request) {
+  const fakeParent = new Module("", null)
+
+  fakeParent.paths = Module._nodeModulePaths(".")
+
+  const lookupPaths = Module._resolveLookupPaths(request, fakeParent)[1]
+  const paths = []
+
+  if (paths.indexOf(".") === -1) {
+    paths.push(".")
+  }
+
+  for (const lookupPath of lookupPaths) {
+    if (paths.indexOf(lookupPath) === -1) {
+      paths.push(lookupPath)
+    }
+  }
+
+  return Module._findPath(request, paths) ||
+    path.resolve(request)
 }
 
 const bin = findBin()
