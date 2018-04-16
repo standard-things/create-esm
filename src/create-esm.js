@@ -6,6 +6,17 @@ import path from "path"
 
 const isWin = process.platform === "win32"
 
+const nodeVersion = String(process.version || "0.0")
+  .match(/\d+/g)
+  .map(Number)
+
+// The `paths` option was added in Node 8.9.0.
+// https://nodejs.org/dist/latest/docs/api/modules.html#modules_require_resolve_request_options
+const useResolveFallback =
+  nodeVersion[0] < 8 ||
+  (nodeVersion[0] === 8 &&
+   nodeVersion[1] < 9)
+
 const mainFieldRegExp = /^(\s*)("main":.*?)(,)?(\r?\n)/m
 
 const npmBinRegExp = isWin
@@ -156,7 +167,7 @@ function mkdirp(dirPath) {
 }
 
 function resolve(request) {
-  if (__non_webpack_require__.resolve.length === 1) {
+  if (useResolveFallback) {
     return resolveFallback(request)
   }
 
