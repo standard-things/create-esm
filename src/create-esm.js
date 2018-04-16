@@ -185,17 +185,15 @@ function resolveFallback(request) {
 
   fakeParent.paths = Module._nodeModulePaths(".")
 
-  const lookupPaths = Module._resolveLookupPaths(request, fakeParent)[1]
-  const paths = []
+  const paths = Module._resolveLookupPaths(request, fakeParent)[1]
+  const index = paths.indexOf(".")
 
-  if (paths.indexOf(".") === -1) {
-    paths.push(".")
-  }
-
-  for (const lookupPath of lookupPaths) {
-    if (paths.indexOf(lookupPath) === -1) {
-      paths.push(lookupPath)
+  if (index) {
+    if (index !== -1) {
+      paths.splice(index, 1)
     }
+
+    paths.unshift(".")
   }
 
   return Module._findPath(request, paths) ||
