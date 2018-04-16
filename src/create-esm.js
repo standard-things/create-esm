@@ -6,7 +6,7 @@ import path from "path"
 
 const isWin = process.platform === "win32"
 
-const nodeVersion = String(process.version || "0.0")
+const nodeVersion = (String(process.version) + ".0.0")
   .match(/\d+/g)
   .map(Number)
 
