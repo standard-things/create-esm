@@ -19,12 +19,14 @@ const fieldsToRemove = [
 
 function cleanPackageJSON() {
   const content = fs.readFileSync(pkgPath, "utf8")
-  process.once("exit", () => fs.writeFileSync(pkgPath, content))
+
+  process.once("exit", () => fs.outputFileSync(pkgPath, content))
 
   const pkgJSON = JSON.parse(content)
+
   pkgJSON.scripts = defaultScripts
   fieldsToRemove.forEach((field) => Reflect.deleteProperty(pkgJSON, field))
-  fs.writeFileSync(pkgPath, fleece.patch(content, pkgJSON))
+  fs.outputFileSync(pkgPath, fleece.patch(content, pkgJSON))
 }
 
 function publishPackage() {
