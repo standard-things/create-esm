@@ -1,13 +1,9 @@
 /* eslint strict: off, node/no-unsupported-features: ["error", { version: 6 }] */
 "use strict"
 
-const JSON6 = require("json-6")
-
-const fs = require("fs")
+const fs = require("fs-extra")
 const path = require("path")
 const webpack = require("webpack")
-
-const readJSON = (filename) => JSON6.parse(fs.readFileSync(filename))
 
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 const { EnvironmentPlugin } = webpack
@@ -16,7 +12,7 @@ const UglifyJSPlugin = require("uglifyjs-webpack-plugin")
 
 const isProd = /production/.test(process.env.NODE_ENV)
 
-const uglifyOptions = readJSON("./.uglifyrc")
+const uglifyOptions = fs.readJSONSync("./.uglifyrc")
 
 /* eslint-disable sort-keys */
 const config = {

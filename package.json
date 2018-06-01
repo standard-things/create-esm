@@ -33,7 +33,6 @@
     "fs-extra": "^5.0.0",
     "globby": "^8.0.1",
     "golden-fleece": "^1.0.8",
-    "json-6": "^0.1.128",
     "optimize-js-plugin": "0.0.4",
     "trash": "^4.3.0",
     "uglify-es": "^3.3.10",
