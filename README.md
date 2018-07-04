@@ -1,3 +1,4 @@
 # create-esm
 
-A package initialization template for [`esm`](https://github.com/standard-things/esm).
+The [`esm`](https://github.com/standard-things/esm) enabled package
+initialization template ran by `npm init esm` and `yarn create esm`.
