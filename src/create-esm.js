@@ -74,26 +74,26 @@ function initFiles() {
   const pkgString = fs.readFileSync(pkgPath, "utf8")
   const pkgJSON = JSON.parse(pkgString)
 
-  const mainField = pkgJSON.main || "index.js"
-  const mainPath = resolve(mainField)
-  const mainName = path.basename(mainPath)
-  const mainDirname = path.dirname(mainPath)
+  const cjsMainField = pkgJSON.main || "index.js"
+  const cjsMainPath = resolve(cjsMainField)
+  const cjsMainName = path.basename(cjsMainPath)
+  const cjsMainDirname = path.dirname(cjsMainPath)
 
-  const esmName = (mainName === "main.js" ? "_" : "") + "main.js"
-  const esmField = mainField.slice(0, -mainName.length) + esmName
-  const esmFieldLiteral = JSON.stringify(esmField)
-  const esmPath = path.resolve(mainDirname, esmName)
+  const esmMainName = (cjsMainName === "main.js" ? "_" : "") + "main.js"
+  const esmMainField = cjsMainField.slice(0, -cjsMainName.length) + esmMainName
+  const esmMainFieldLiteral = JSON.stringify(esmMainField)
+  const esmMainPath = path.resolve(cjsMainDirname, esmMainName)
 
   const newPkgString = pkgString
     .replace(mainFieldRegExp, (match, prelude, main, comma = "", newline) => {
       const lines = [prelude + main]
 
       if (! Reflect.has(pkgJSON, "browser")) {
-        lines.push(prelude + '"browser": ' + esmFieldLiteral)
+        lines.push(prelude + '"browser": ' + esmMainFieldLiteral)
       }
 
       if (! Reflect.has(pkgJSON, "module")) {
-        lines.push(prelude + '"module": ' + esmFieldLiteral)
+        lines.push(prelude + '"module": ' + esmMainFieldLiteral)
       }
 
       return lines.join("," + newline) + comma + newline
@@ -103,21 +103,21 @@ function initFiles() {
     fs.writeFileSync(pkgPath, newPkgString)
   }
 
-  if (fs.existsSync(mainPath) ||
-      fs.existsSync(esmPath)) {
+  if (fs.existsSync(cjsMainPath) ||
+      fs.existsSync(esmMainPath)) {
     return
   }
 
-  mkdirp(mainDirname)
+  mkdirp(cjsMainDirname)
 
-  fs.writeFileSync(mainPath, [
+  fs.writeFileSync(cjsMainPath, [
     "// Set options as a parameter, environment variable, or rc file.",
     'require = require("esm")(module/*, options*/)',
-    "module.exports = require(" + JSON.stringify("./" + esmName) + ")",
+    "module.exports = require(" + JSON.stringify("./" + esmMainName) + ")",
     ""
   ].join("\n"))
 
-  fs.writeFileSync(esmPath, [
+  fs.writeFileSync(esmMainPath, [
     "// ESM syntax is supported.",
     "export {}",
     ""
