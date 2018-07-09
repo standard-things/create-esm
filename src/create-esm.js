@@ -208,7 +208,7 @@ Promise
   .resolve()
   // Add a newline to stdout between the create-esm installation and
   // the package initialization.
-  /* eslint-disable no-console */
+  // eslint-disable-next-line no-console
   .then(() => console.log(""))
   .then(() => initPackage(bin))
   .then(() => addESM(bin))
