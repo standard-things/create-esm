@@ -81,19 +81,14 @@ function initFiles() {
 
   const esmMainName = (cjsMainName === "main.js" ? "_" : "") + "main.js"
   const esmMainField = cjsMainField.slice(0, -cjsMainName.length) + esmMainName
-  const esmMainFieldLiteral = JSON.stringify(esmMainField)
   const esmMainPath = path.resolve(cjsMainDirname, esmMainName)
 
   const newPkgString = pkgString
     .replace(mainFieldRegExp, (match, prelude, main, comma = "", newline) => {
       const lines = [prelude + main]
 
-      if (! Reflect.has(pkgJSON, "browser")) {
-        lines.push(prelude + '"browser": ' + esmMainFieldLiteral)
-      }
-
       if (! Reflect.has(pkgJSON, "module")) {
-        lines.push(prelude + '"module": ' + esmMainFieldLiteral)
+        lines.push(prelude + '"module": ' + JSON.stringify(esmMainField))
       }
 
       return lines.join("," + newline) + comma + newline
