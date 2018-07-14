@@ -28,7 +28,7 @@
     "@babel/plugin-transform-arrow-functions": "^7.0.0-beta.53",
     "@babel/plugin-transform-block-scoping": "^7.0.0-beta.53",
     "@babel/preset-env": "^7.0.0-beta.53",
-    "babel-eslint": "^8.2.5",
+    "babel-eslint": "^8.2.6",
     "babel-loader": "^8.0.0-beta.4",
     "babel-plugin-transform-for-of-as-array": "^1.1.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
