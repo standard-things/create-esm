@@ -13,6 +13,7 @@
   },
   "scripts": {
     "precommit": "npm run lint",
+    "prepare": "npm run build:prod",
     "prepub": "npm run build:prod",
     "build": "node script/build.js",
     "build:prod": "npm run build -- --prod",
