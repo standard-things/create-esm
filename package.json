@@ -44,6 +44,7 @@
     "trash": "^4.3.0",
     "uglify-es": "^3.3.10",
     "uglifyjs-webpack-plugin": "^1.2.7",
+    "unused-webpack-plugin": "^2.0.0",
     "webpack": "^4.16.0",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.0.8",

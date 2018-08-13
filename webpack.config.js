@@ -9,6 +9,7 @@ const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 const { EnvironmentPlugin } = webpack
 const OptimizeJsPlugin = require("optimize-js-plugin")
 const UglifyJSPlugin = require("uglifyjs-webpack-plugin")
+const UnusedPlugin = require("unused-webpack-plugin")
 
 const isProd = /production/.test(process.env.NODE_ENV)
 
@@ -50,6 +51,14 @@ const config = {
       logLevel: "silent",
       openAnalyzer: false,
       reportFilename: "report.html"
+    }),
+    new UnusedPlugin({
+      directories : [path.resolve("src")],
+      exclude: [
+        ".*",
+        "*.json"
+      ],
+      root : __dirname
     })
   ],
   target: "node"
