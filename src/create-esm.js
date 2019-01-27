@@ -64,7 +64,7 @@ function findBin() {
   return bin
 }
 
-function initFiles() {
+function initFiles(bin) {
   const pkgPath = path.resolve("package.json")
 
   if (! fs.existsSync(pkgPath)) {
@@ -83,6 +83,18 @@ function initFiles() {
   const esmMainField = cjsMainField.slice(0, -cjsMainName.length) + esmMainName
   const esmMainPath = path.resolve(cjsMainDirname, esmMainName)
 
+  const dotYarnPath = path.resolve(".yarn")
+  const dotYarnrcPath = path.resolve(".yarnrc")
+  const fixturesPath = path.resolve(__dirname, "fixtures")
+
+  const dotYarnContent = fs.readFileSync(path.resolve(fixturesPath, ".yarn"), "utf8")
+  const dotYarnrcContent = fs.readFileSync(path.resolve(fixturesPath, ".yarnrc"), "utf8")
+  const esmMainContent = fs.readFileSync(path.resolve(fixturesPath, "index.js", "utf8"))
+
+  const cjsMainContent = fs
+    .readFileSync(path.resolve(fixturesPath, "main.js", "utf8"))
+    .replace("${ESM_MAIN_NAME}", () => JSON.stringify("./" + esmMainName))
+
   const newPkgString = pkgString
     .replace(mainFieldRegExp, (match, prelude, main, comma = "", newline) => {
       const lines = [prelude + main]
@@ -98,6 +110,16 @@ function initFiles() {
     fs.writeFileSync(pkgPath, newPkgString)
   }
 
+  if (bin === "yarn") {
+    if (! fs.existsSync(dotYarnPath)) {
+      fs.writeFileSync(dotYarnPath, dotYarnContent)
+    }
+
+    if (! fs.existsSync(dotYarnrcPath)) {
+      fs.writeFileSync(dotYarnPath, dotYarnrcContent)
+    }
+  }
+
   if (fs.existsSync(cjsMainPath) ||
       fs.existsSync(esmMainPath)) {
     return
@@ -105,18 +127,8 @@ function initFiles() {
 
   mkdirp(cjsMainDirname)
 
-  fs.writeFileSync(cjsMainPath, [
-    "// Set options as a parameter, environment variable, or rc file.",
-    'require = require("esm")(module/*, options*/)',
-    "module.exports = require(" + JSON.stringify("./" + esmMainName) + ")",
-    ""
-  ].join("\n"))
-
-  fs.writeFileSync(esmMainPath, [
-    "// ESM syntax is supported.",
-    "export {}",
-    ""
-  ].join("\n"))
+  fs.writeFileSync(cjsMainPath, cjsMainContent)
+  fs.writeFileSync(esmMainPath, esmMainContent)
 }
 
 function initPackage(bin) {
@@ -207,5 +219,5 @@ Promise
   .then(() => console.log(""))
   .then(() => initPackage(bin))
   .then(() => addESM(bin))
-  .then(initFiles)
+  .then(() => initFiles(bin))
   .catch(console.error)
