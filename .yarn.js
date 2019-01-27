@@ -1,62 +1,28 @@
 "use strict"
 
 const child_process = require("child_process")
+const { env } = process
+const { parent } = module
 
-const args = process.argv.slice(2)
+const REQUIRE_ESM = "--require esm"
+const REQUIRE_DOT_YARN = "--require ./.yarn.js"
 
-const flagsWithArgs = new Set([
-  "--cache-folder",
-  "--cwd",
-  "--emoji",
-  "--global-folder",
-  "--https-proxy",
-  "--link-folder",
-  "--modules-folder",
-  "--mutex",
-  "--network-concurrency",
-  "--network-timeout",
-  "--preferred-cache-folder",
-  "--prod",
-  "--production",
-  "--proxy",
-  "--registry",
-  "--scripts-prepend-node-path",
-  "--use-yarnrc"
-])
+let { NODE_OPTIONS } = env
 
-const doubleDashIndex = args.findIndex((arg) => arg === "--")
+if (typeof NODE_OPTIONS === "string") {
+  NODE_OPTIONS += " "
+} else {
+  NODE_OPTIONS = ""
+}
 
-const possibleArgs = doubleDashIndex === -1
-  ? args
-  : args.slice(0, doubleDashIndex)
-
-const firstNonFlagIndex = possibleArgs.findIndex((arg, index) => {
-  const prev = index ? args[index - 1] : void 0
-
-  return ! arg.startsWith("-") &&
-    ! flagsWithArgs.has(prev)
-})
-
-child_process.spawn("yarn", ["-v"])
-  .stdout.on("data", (data) => {
-    if (firstNonFlagIndex !== -1 &&
-        args[firstNonFlagIndex] === "node") {
-      const version = data.toString().trim()
-      const [major, minor] = version.split(".").map(Number)
-
-      let spliceArgs = []
-
-      if (major < 1 ||
-          (major === 1 &&
-          minor < 11)) {
-        spliceArgs.push("--")
-      }
-
-      spliceArgs.push("-r", "esm")
-      args.splice(firstNonFlagIndex + 1, 0, ...spliceArgs)
-    }
-
-    child_process.spawn("yarn", args, {
-      stdio: "inherit"
-    })
+if (parent != null &&
+    parent.id === "internal/preload") {
+  env.NODE_OPTIONS = NODE_OPTIONS.replace(REQUIRE_DOT_YARN, REQUIRE_ESM)
+} else {
+  child_process.spawn("yarn", process.argv.slice(2), {
+    env: Object.assign({}, env, {
+      NODE_OPTIONS: REQUIRE_DOT_YARN + " " + NODE_OPTIONS
+    }),
+    stdio: "inherit"
   })
+}
