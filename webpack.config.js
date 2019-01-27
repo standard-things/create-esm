@@ -8,12 +8,12 @@ const webpack = require("webpack")
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 const { EnvironmentPlugin } = webpack
 const OptimizeJsPlugin = require("optimize-js-plugin")
-const UglifyJSPlugin = require("uglifyjs-webpack-plugin")
+const TerserPlugin = require("terser-webpack-plugin")
 const UnusedPlugin = require("unused-webpack-plugin")
 
 const isProd = /production/.test(process.env.NODE_ENV)
 
-const uglifyOptions = fs.readJSONSync("./.uglifyrc")
+const terserOptions = fs.readJSONSync("./.terserrc")
 
 /* eslint-disable sort-keys */
 const config = {
@@ -40,7 +40,7 @@ const config = {
   },
   optimization: {
     minimizer: [
-      new UglifyJSPlugin({ uglifyOptions })
+      new TerserPlugin({ terserOptions })
     ],
     nodeEnv: false
   },

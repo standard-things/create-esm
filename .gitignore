@@ -1,7 +1,6 @@
 *.log
 .DS_Store
 .vscode
-package-lock.json
 /create-esm
 /build
 /node_modules
