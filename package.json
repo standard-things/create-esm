@@ -41,6 +41,8 @@
     "globby": "^8.0.2",
     "golden-fleece": "^1.0.9",
     "optimize-js-plugin": "0.0.4",
+    "pkg-install": "0.0.5",
+    "semver": "^5.6.0",
     "terser": "^3.14.1",
     "terser-webpack-plugin": "^1.2.1",
     "trash": "^4.3.0",

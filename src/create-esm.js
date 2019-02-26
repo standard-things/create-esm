@@ -1,70 +1,17 @@
+import { getPackageManager, install } from "pkg-install"
+
 import Module from "module"
+import SemVer from "semver"
 
 import execa from "execa"
 import fs from "fs"
 import path from "path"
 
-const isWin = process.platform === "win32"
-
-// The `paths` option was added in Node 8.9.0.
-// https://nodejs.org/dist/latest/docs/api/modules.html#modules_require_resolve_request_options
-const nodeVersion = (String(process.version) + ".9.9")
-  .match(/\d+/g)
-  .slice(0, 3)
-  .map(Number)
-
-const useResolveFallback =
-  nodeVersion[0] < 8 ||
-  (nodeVersion[0] === 8 &&
-   nodeVersion[1] < 9)
+const useRequireResolveOptions = SemVer.satisfies(process.version, ">=8.9")
 
 const mainFieldRegExp = /^(\s*)("main":.*?)(,)?(\r?\n)/m
 
-const npmBinRegExp = isWin
-  ? /[\\/]np[mx](\.cmd)?$/
-  : /\/np[mx]$/
-
-const npmJsRegExp = isWin
-  ? /[\\/]node_modules[\\/]npm[\\/]bin[\\/]np[mx]-cli\.js$/
-  : /\/node_modules\/npm\/bin\/np[mx]-cli\.js$/
-
-function addESM(bin) {
-  const args = bin === "yarn"
-    ? ["add", "esm"]
-    : ["i", "--save", "esm"]
-
-  return execa(bin, args)
-}
-
-function checkBin(bin) {
-  return ! execa.sync(bin, ["-v"], {
-    reject: false
-  }).failed
-}
-
-function findBin() {
-  const { env } = process
-
-  let bin = "yarn"
-
-  if (npmJsRegExp.test(env.NPM_CLI_JS) ||
-      npmJsRegExp.test(env.NPX_CLI_JS) ||
-      npmBinRegExp.test(env._)) {
-    bin = "npm"
-  }
-
-  if (! checkBin(bin)) {
-    bin = bin === "yarn" ? "npm" : "yarn"
-
-    if (! checkBin(bin)) {
-      throw new Error("No package manager found.")
-    }
-  }
-
-  return bin
-}
-
-function initFiles(bin) {
+function initFiles(pkgManager) {
   const pkgPath = path.resolve("package.json")
 
   if (! fs.existsSync(pkgPath)) {
@@ -83,16 +30,16 @@ function initFiles(bin) {
   const esmMainField = cjsMainField.slice(0, -cjsMainName.length) + esmMainName
   const esmMainPath = path.resolve(cjsMainDirname, esmMainName)
 
-  const dotYarnPath = path.resolve(".yarn")
+  const dotYarnPath = path.resolve(".yarn.js")
   const dotYarnrcPath = path.resolve(".yarnrc")
   const fixturesPath = path.resolve(__dirname, "fixtures")
 
-  const dotYarnContent = fs.readFileSync(path.resolve(fixturesPath, ".yarn"), "utf8")
+  const dotYarnContent = fs.readFileSync(path.resolve(fixturesPath, ".yarn.js"), "utf8")
   const dotYarnrcContent = fs.readFileSync(path.resolve(fixturesPath, ".yarnrc"), "utf8")
-  const esmMainContent = fs.readFileSync(path.resolve(fixturesPath, "index.js", "utf8"))
+  const esmMainContent = fs.readFileSync(path.resolve(fixturesPath, "index.js"), "utf8")
 
   const cjsMainContent = fs
-    .readFileSync(path.resolve(fixturesPath, "main.js", "utf8"))
+    .readFileSync(path.resolve(fixturesPath, "main.js"), "utf8")
     .replace("${ESM_MAIN_NAME}", () => JSON.stringify("./" + esmMainName))
 
   const newPkgString = pkgString
@@ -110,13 +57,13 @@ function initFiles(bin) {
     fs.writeFileSync(pkgPath, newPkgString)
   }
 
-  if (bin === "yarn") {
+  if (pkgManager === "yarn") {
     if (! fs.existsSync(dotYarnPath)) {
       fs.writeFileSync(dotYarnPath, dotYarnContent)
     }
 
     if (! fs.existsSync(dotYarnrcPath)) {
-      fs.writeFileSync(dotYarnPath, dotYarnrcContent)
+      fs.writeFileSync(dotYarnrcPath, dotYarnrcContent)
     }
   }
 
@@ -131,17 +78,12 @@ function initFiles(bin) {
   fs.writeFileSync(esmMainPath, esmMainContent)
 }
 
-function initPackage(bin) {
-  const initArgs = process.argv
+function initPackage(pkgManager) {
+  const args = process.argv
     .slice(2)
     .filter((arg) => arg.startsWith("-"))
 
-  const binArgs = [
-    "init",
-    ...initArgs
-  ]
-
-  return execa(bin, binArgs, {
+  return execa(pkgManager, ["init", ...args], {
     stdio: "inherit"
   })
 }
@@ -176,17 +118,17 @@ function mkdirp(dirPath) {
 }
 
 function resolve(request) {
-  if (useResolveFallback) {
-    return resolveFallback(request)
+  if (useRequireResolveOptions) {
+    try {
+      return __non_webpack_require__.resolve(request, {
+        paths: ["."]
+      })
+    } catch {}
+
+    return path.resolve(request)
   }
 
-  try {
-    return __non_webpack_require__.resolve(request, {
-      paths: ["."]
-    })
-  } catch (e) {}
-
-  return path.resolve(request)
+  return resolveFallback(request)
 }
 
 function resolveFallback(request) {
@@ -194,30 +136,32 @@ function resolveFallback(request) {
 
   fakeParent.paths = Module._nodeModulePaths(".")
 
-  const paths = Module._resolveLookupPaths(request, fakeParent)[1]
-  const index = paths.indexOf(".")
+  const lookupPaths = Module._resolveLookupPaths(request, fakeParent)[1]
+  const paths = []
 
-  if (index) {
-    if (index !== -1) {
-      paths.splice(index, 1)
+  for (const lookupPath of lookupPaths) {
+    if (paths.indexOf(lookupPath) === -1) {
+      paths.push(lookupPath)
     }
-
-    paths.unshift(".")
   }
 
-  return Module._findPath(request, paths) ||
-    path.resolve(request)
+  const foundPath = Module._findPath(request, paths)
+
+  return foundPath === false
+    ? path.resolve(request)
+    : foundPath
 }
 
-const bin = findBin()
-
-Promise
-  .resolve()
-  // Add a newline to stdout between the create-esm installation and
-  // the package initialization.
-  // eslint-disable-next-line no-console
-  .then(() => console.log(""))
-  .then(() => initPackage(bin))
-  .then(() => addESM(bin))
-  .then(() => initFiles(bin))
+getPackageManager({})
+  .then((pkgManager) =>
+    Promise
+      .resolve()
+      // Add a newline to stdout between the create-esm installation and
+      // the package initialization.
+      // eslint-disable-next-line no-console
+      .then(() => console.log(""))
+      .then(() => initPackage(pkgManager))
+      .then(() => install(["esm"]))
+      .then(() => initFiles(pkgManager))
+  )
   .catch(console.error)
