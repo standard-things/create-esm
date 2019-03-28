@@ -1,6 +1,6 @@
 {
   "name": "create-esm",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Create `esm` enabled packages.",
   "keywords": "commonjs, ecmascript, export, import, modules, node, require",
   "repository": "standard-things/create-esm",
