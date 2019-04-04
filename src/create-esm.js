@@ -36,11 +36,11 @@ function initFiles(pkgManager) {
 
   const dotYarnContent = fs.readFileSync(path.resolve(fixturesPath, ".yarn.js"), "utf8")
   const dotYarnrcContent = fs.readFileSync(path.resolve(fixturesPath, ".yarnrc"), "utf8")
-  const esmMainContent = fs.readFileSync(path.resolve(fixturesPath, "index.js"), "utf8")
+  const esmMainContent = fs.readFileSync(path.resolve(fixturesPath, "main.js"), "utf8")
 
   const cjsMainContent = fs
-    .readFileSync(path.resolve(fixturesPath, "main.js"), "utf8")
-    .replace("${ESM_MAIN_NAME}", () => JSON.stringify("./" + esmMainName))
+    .readFileSync(path.resolve(fixturesPath, "index.js"), "utf8")
+    .replace("${ESM_MAIN_NAME}", () => "./" + esmMainName)
 
   const newPkgString = pkgString
     .replace(mainFieldRegExp, (match, prelude, main, comma = "", newline) => {
