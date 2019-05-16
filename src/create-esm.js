@@ -40,7 +40,7 @@ function initFiles(pkgManager) {
 
   const cjsMainContent = fs
     .readFileSync(path.resolve(fixturesPath, "index.js"), "utf8")
-    .replace("${ESM_MAIN_NAME}", () => "./" + esmMainName)
+    .replace('"${ESM_MAIN_NAME}"', () => JSON.stringify("./" + esmMainName))
 
   const newPkgString = pkgString
     .replace(mainFieldRegExp, (match, prelude, main, comma = "", newline) => {
